@@ -1,4 +1,4 @@
-package jdtcore;
+package org.core;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,13 +13,13 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jface.text.Document;
 
 
-public class JdtAst {
+public class JavaToAst {
 
-    @SuppressWarnings("deprecation")
 	private ASTParser astParser = ASTParser.newParser(AST.JLS8); 
     /**
-     * parser only one java file
-     * 
+     * Function: convert java file to ASTNode compilation unit
+     * input: java file path (String)
+     * output:ASTNode compilationUnit
      */
     public CompilationUnit getCompilationUnit(String javaFilePath)
             throws CoreException, Exception {
@@ -34,7 +34,6 @@ public class JdtAst {
         this.astParser.setKind(ASTParser.K_COMPILATION_UNIT);//
         this.astParser.setBindingsRecovery(true);//
         Map<String, String> options = JavaCore.getOptions();
-        Map<String, String> compilerOptions = JavaCore.getOptions();
         this.astParser.setCompilerOptions(options);
 		
         this.astParser.setSource(new String(input).toCharArray());
@@ -44,14 +43,17 @@ public class JdtAst {
         return result;
 
     } 
-    //javafile to CompilationUnit
-    public CompilationUnit getNewCompilationUnit(File javaSRC)
+    /**
+     * Function: convert java file to ASTNode compilation unit
+     * input: java file path (File)
+     * output:ASTNode compilationUnit
+     */
+    public CompilationUnit getCompilationUnit2(File javaFile)
             throws CoreException, Exception {
     	
     	//File javaSRC = new File(javaFilePath);
-    	final String source = FileUtils.readFileToString(javaSRC);
+    	final String source = FileUtils.readFileToString(javaFile);
     	Document document = new Document(source);
-    	
     	// Parse the source code and generate an AST.
         astParser.setResolveBindings(true);//
         astParser.setSource(document.get().toCharArray());
@@ -59,10 +61,11 @@ public class JdtAst {
         astParser.setBindingsRecovery(true);//
 
         CompilationUnit cu = (CompilationUnit) astParser.createAST(null);
-        DemoVisitor visitor = new DemoVisitor(document,javaSRC);//visit AST
-        cu.accept(visitor);
+        
+        CompilationUnitVisitor compilationUnitvisitor = new CompilationUnitVisitor(document,javaFile);
+        cu.accept(compilationUnitvisitor);
+        
         return cu;
-
     } 
  
 }
