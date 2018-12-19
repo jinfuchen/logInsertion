@@ -5,6 +5,9 @@ import java.util.List;
 
 import org.core.JavaToAst;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jgit.lib.Repository;
+import org.git.GitService;
+import org.git.GitServiceImpl;
 import org.util.Constant;
 import org.util.filterFile;
 
@@ -16,7 +19,11 @@ public class execute {
 	
 	public static void main(String[] args) throws CoreException, Exception {
 		// TODO Auto-generated method stub
-		logger.info("inserting log into method......");
+		logger.info("checkout to commit: {}", Constant.commit);
+		GitService gitService = new GitServiceImpl();
+		Repository repo = gitService.cloneIfNotExists(Constant.localPath, Constant.repoUrl);
+		gitService.checkout(repo, Constant.commit);
+		logger.info("insert log into methods ......");
 		filterFile walkdir = new filterFile();
 		List<File> files = walkdir.walk(Constant.TESTFILE);
 		for(File file: files){
