@@ -25,7 +25,7 @@ public class execute {
 		gitService.checkout(repo, Constant.commit);
 		logger.info("insert log into methods ......");
 		filterFile walkdir = new filterFile();
-		List<File> files = walkdir.walk(Constant.TESTFILE);
+		List<File> files = walkdir.walk(Constant.localPath);
 		for(File file: files){
 			JavaToAst jdt = new JavaToAst();
 	        logger.info("file path: {}",file.getAbsolutePath());

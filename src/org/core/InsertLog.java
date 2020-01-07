@@ -3,6 +3,7 @@ package org.core;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.CoreException;
@@ -29,6 +30,7 @@ public class InsertLog{
 	private static Logger logger = LoggerFactory.getLogger(InsertLog.class);
 	/*
 	 * add print log into class unit
+	 * It works. However, some cases like inner class do not work.
 	 */
 	@SuppressWarnings("unchecked")
 	public void fileAddprints(CompilationUnit cunit,Document document,File file) throws MalformedTreeException, BadLocationException, CoreException, IOException{
@@ -36,6 +38,8 @@ public class InsertLog{
 		ASTRewrite rewriter = ASTRewrite.create(ast);
 		HashSet<String> classset = new HashSet<String>();  //hashset store the class name
 		String filepath = file.getPath(); //get the relative path
+		if (filepath.length() > 44)
+			filepath = filepath.substring(44,filepath.length());
 		for (int classi = 0; classi < cunit.types().size(); classi++) { //one class may have multiple sub-classes
 			if(!(cunit.types().get(classi) instanceof TypeDeclaration))//if the type is not TypeDeclaration
 				continue;
@@ -95,7 +99,54 @@ public class InsertLog{
 	}
 	
 	/*
+	 * add print log into class unit
+	 * It works. 
+	 */
+	@SuppressWarnings("unchecked")
+	public void fileAddprints2(CompilationUnit cunit,Document document,File file){
+		AST ast = cunit.getAST(); // create a ASTRewrite, cunit is a java file
+		ASTRewrite rewriter = ASTRewrite.create(ast);
+
+		List<MethodDeclaration> methodDeclarations = MethodDeclarationFinder.perform(cunit);
+		
+		String filepath = file.getPath(); //get the relative path
+		if (filepath.length() > 44)
+			filepath = filepath.substring(44,filepath.length());
+		
+		for (MethodDeclaration methodDeclaration : methodDeclarations) {
+		    MethodInvocation methodInvocation = ast.newMethodInvocation();
+		    // System.out.println("Hello, World")
+		    QualifiedName qName = ast.newQualifiedName(ast.newSimpleName("System"), ast.newSimpleName("out"));
+		    methodInvocation.setExpression(qName);
+		    methodInvocation.setName(ast.newSimpleName("println"));
+
+		    StringLiteral printArgument = ast.newStringLiteral();
+			// setup argument, double quotation
+			String methodprint = "\"" +filepath+":"+ methodDeclaration.getName().getFullyQualifiedName() + "\"";
+			printArgument.setEscapedValue(methodprint);
+		    methodInvocation.arguments().add(printArgument);
+		    ExpressionStatement printstatement = ast.newExpressionStatement(methodInvocation);
+		 
+		    // no body, interface
+		    if (methodDeclaration.getBody() == null)
+		    	continue;
+		    ListRewrite listRewrite = rewriter.getListRewrite(methodDeclaration.getBody(), Block.STATEMENTS_PROPERTY);
+//		    methodDeclaration.getBody().statements().add(ast.newExpressionStatement(methodInvocation));   // do not work
+		    listRewrite.insertFirst(printstatement, null);
+		}
+		TextEdit edits = rewriter.rewriteAST(document,null);
+		try {
+			edits.apply(document);
+			FileUtils.write(file, document.get());
+			} catch (MalformedTreeException | BadLocationException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	}
+
+	/*
 	 * add print log into method unit
+	 * Changes can be inserted into the function. However, the location is wrong.
 	 */
 	@SuppressWarnings("unchecked")
 	public void methodAddprints(MethodDeclaration methodUnit,Document document,File file) throws MalformedTreeException, BadLocationException, CoreException, IOException {
@@ -117,6 +168,7 @@ public class InsertLog{
         //"Done!"  
         StringLiteral printArgument = ast.newStringLiteral();  
         String methodprint = "\"" + methodUnit.getName().getFullyQualifiedName() + "\"";
+        logger.info("method name: {}", methodprint);
 		printArgument.setEscapedValue(methodprint);
         methodInv.arguments().add(printArgument);  
         // add MethodInvocation node to ExpressionStatement
@@ -128,6 +180,28 @@ public class InsertLog{
 		TextEdit edits = rewriter.rewriteAST(document,null);
 		edits.apply(document);
 		// this is the code for adding statements
-		//FileUtils.write(file, document.get());
+		FileUtils.write(file, document.get());
 	}
+	
+	/*
+	 * It does not work
+	 */
+	@SuppressWarnings("unchecked")
+	public void methodAddprints2(MethodDeclaration node){
+		AST ast = node.getAST();
+        MethodInvocation methodInvocation = ast.newMethodInvocation();
+        // System.out.println("Hello, World")
+        QualifiedName qName =  ast.newQualifiedName(ast.newSimpleName("System"), ast.newSimpleName("out"));
+        methodInvocation.setExpression(qName);
+        methodInvocation.setName(ast.newSimpleName("println"));
+
+        StringLiteral literal = ast.newStringLiteral();
+        literal.setLiteralValue("Hello, World");
+        methodInvocation.arguments().add(literal);
+        // Append the statement
+        node.getBody().statements().add(ast.newExpressionStatement(methodInvocation));
+        
+	}
+	
+
 }

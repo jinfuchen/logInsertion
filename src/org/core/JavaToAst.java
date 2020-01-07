@@ -62,8 +62,11 @@ public class JavaToAst {
 
         CompilationUnit cu = (CompilationUnit) astParser.createAST(null);
         
-        CompilationUnitVisitor compilationUnitvisitor = new CompilationUnitVisitor(document,javaFile);
-        cu.accept(compilationUnitvisitor);
+//        CompilationUnitVisitor compilationUnitvisitor = new CompilationUnitVisitor(document,javaFile);
+        MethodVisitor methodVisitor = new MethodVisitor(document,javaFile);
+        
+//        cu.accept(compilationUnitvisitor);
+        cu.accept(methodVisitor);
         
         return cu;
     } 

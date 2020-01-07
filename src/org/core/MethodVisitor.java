@@ -1,15 +1,12 @@
 package org.core;
 
 import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jface.text.Document;
-import org.eclipse.text.edits.MalformedTreeException;
-import org.eclipse.jface.text.BadLocationException;
+
 
 import java.io.File;
-import java.io.IOException;
 
-import org.eclipse.core.runtime.CoreException;
 
 public class MethodVisitor extends ASTVisitor{
 	private Document document;
@@ -23,14 +20,27 @@ public class MethodVisitor extends ASTVisitor{
 		insertLog = new InsertLog();
 	}
 	
+	
 	//visit each method, insert log 
-	public boolean visit(MethodDeclaration methodDec) {
-		try {
-			insertLog.methodAddprints(methodDec, document, file);
-		} catch (MalformedTreeException | BadLocationException | CoreException | IOException e) {
-			e.printStackTrace();
-		}
+//	@SuppressWarnings("unchecked")
+//	@Override
+//	public boolean visit(MethodDeclaration node) {
+//		try {
+////			insertLog.methodAddprints(methodDec, document, file);
+//			insertLog.methodAddprints2(node);
+//		} //catch (MalformedTreeException | BadLocationException | CoreException | IOException e) {
+//			catch(MalformedTreeException e){
+//			e.printStackTrace();
+//		}
+//		return true;		
+//	}
+
+	@Override
+	public boolean visit(CompilationUnit node) {
+		// TODO Auto-generated method stub
+		insertLog.fileAddprints2(node, document, file);
+		return super.visit(node);
 		
-		return true;
 	}
+	
 }
