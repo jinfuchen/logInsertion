@@ -19,13 +19,13 @@ public class execute {
 	
 	public static void main(String[] args) throws CoreException, Exception {
 		// TODO Auto-generated method stub
-		logger.info("checkout to commit: {}", Constant.commit);
-		GitService gitService = new GitServiceImpl();
-		Repository repo = gitService.cloneIfNotExists(Constant.localPath, Constant.repoUrl);
-		gitService.checkout(repo, Constant.commit);
+//		logger.info("checkout to commit: {}", Constant.commit);
+//		GitService gitService = new GitServiceImpl();
+//		Repository repo = gitService.cloneIfNotExists(Constant.localPath, Constant.repoUrl);
+//		gitService.checkout(repo, Constant.commit);
 		logger.info("insert log into methods ......");
 		filterFile walkdir = new filterFile();
-		List<File> files = walkdir.walk(Constant.localPath);
+		List<File> files = walkdir.walk(Constant.TESTFILE);
 		for(File file: files){
 			JavaToAst jdt = new JavaToAst();
 	        logger.info("file path: {}",file.getAbsolutePath());

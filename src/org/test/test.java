@@ -3,25 +3,30 @@ package org.test;
 public class test {
 
 	public static void main(String[] args) {
-		System.out.println("src/org/test/test.java:main");
-		System.out.println("src/org/test/test.java:main");
-		// TODO Auto-generated method stub
+		System.out.println("11111"
+				+ "");
+		System.out.println("22222");
+		System.out.println("33333");
+		System.out.println(":main");
 		printtest("hello concordia");
 	}
 	static void printtest(String str){
-		System.out.println("src/org/test/test.java:printtest");
-		System.out.println("src/org/test/test.java:printtest");
+		System.out.println("11111"
+				+ "");
+		System.out.println("22222");
+		System.out.println("33333");
+		System.out.println(":printtest");
 		System.out.println("methodNotFor");
 	}
 
 	public void nothing(){
-		System.out.println("src/org/test/test.java:nothing");
-		System.out.println("src/org/test/test.java:nothing");
+		System.out.println("11111");
+		System.out.println("22222");
+		System.out.println("33333");
+		System.out.println(":nothing");
 		System.out.println("hello");
 	}
 	private void Environment() {
-		System.out.println("src/org/test/test.java:Environment");
-		System.out.println("src/org/test/test.java:Environment");
 		throw new UnsupportedOperationException();
 	}
 }

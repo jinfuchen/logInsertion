@@ -1,6 +1,8 @@
 package org.util;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.InvalidPathException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -24,9 +26,12 @@ public class filterFile {
 		String extension;
 		for(File file :files){
 			extension = FilenameUtils.getExtension(file.getName()) ;
-			if(extension.equals("java") && file.getName().indexOf("Test")==-1)
+//			if(extension.equals("java") && file.getName().indexOf("Test")==-1)
+			if(extension.equals("java"))
 				javafiles.add(file);
 		}
 		return javafiles;
 	}
+	
+
 }

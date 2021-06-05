@@ -1,11 +1,14 @@
 package org.core;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
-
+import org.eclipse.text.edits.MalformedTreeException;
 
 import java.io.File;
+import java.io.IOException;
 
 
 public class MethodVisitor extends ASTVisitor{
@@ -38,7 +41,12 @@ public class MethodVisitor extends ASTVisitor{
 	@Override
 	public boolean visit(CompilationUnit node) {
 		// TODO Auto-generated method stub
-		insertLog.fileAddprints2(node, document, file);
+		try {
+			insertLog.fileAddprints2(node, document, file);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return super.visit(node);
 		
 	}

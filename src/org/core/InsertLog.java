@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
@@ -37,9 +38,16 @@ public class InsertLog{
 		AST ast = cunit.getAST(); // create a ASTRewrite, cunit is a java file
 		ASTRewrite rewriter = ASTRewrite.create(ast);
 		HashSet<String> classset = new HashSet<String>();  //hashset store the class name
-		String filepath = file.getPath(); //get the relative path
-		if (filepath.length() > 44)
-			filepath = filepath.substring(44,filepath.length());
+
+		String init_filepath = file.getPath(); //get the relative path
+		System.out.println(init_filepath);
+		String filepath = "";
+		if (init_filepath.length() > 48){
+//			String filepath2 = init_filepath.replace("/Users/jinfu/Documents/workspace/Git/openmrs-core/","");
+//			filepath = filepath2.replace("org/apache/openmrs", "--");
+			filepath = init_filepath.replace("/Users/jinfu/Documents/workspace/Git/openmrs-core/","");
+		}
+			
 		for (int classi = 0; classi < cunit.types().size(); classi++) { //one class may have multiple sub-classes
 			if(!(cunit.types().get(classi) instanceof TypeDeclaration))//if the type is not TypeDeclaration
 				continue;
@@ -88,7 +96,9 @@ public class InsertLog{
 					listRewrite.insertLast(printstatement, null);
 					continue;
 				}
-				listRewrite.insertFirst(printstatement, null);
+//				listRewrite.insertFirst(printstatement, null);
+				System.out.print(block.statements().get(1).toString());
+				listRewrite.insertAfter((ASTNode)block.statements().get(1), printstatement, null);
 			}
 		}
 		// apply the text edits to the compilation unit
@@ -109,9 +119,13 @@ public class InsertLog{
 
 		List<MethodDeclaration> methodDeclarations = MethodDeclarationFinder.perform(cunit);
 		
-		String filepath = file.getPath(); //get the relative path
-		if (filepath.length() > 44)
-			filepath = filepath.substring(44,filepath.length());
+		String init_filepath = file.getPath(); //get the relative path
+		String filepath = "";
+		if (init_filepath.length() > 48){
+//			String filepath2 = init_filepath.replace("/Users/jinfu/Documents/workspace/Git/openmrs/","");
+//			filepath = filepath2.replace("org/apache/openmrs", "--");
+			filepath = init_filepath.replace("/Users/jinfu/Documents/workspace/Git/openmrs-core/","");
+		}
 		
 		for (MethodDeclaration methodDeclaration : methodDeclarations) {
 		    MethodInvocation methodInvocation = ast.newMethodInvocation();
@@ -127,12 +141,25 @@ public class InsertLog{
 		    methodInvocation.arguments().add(printArgument);
 		    ExpressionStatement printstatement = ast.newExpressionStatement(methodInvocation);
 		 
+
 		    // no body, interface
-		    if (methodDeclaration.getBody() == null)
+		    Block block = methodDeclaration.getBody();
+		    if (block == null  || block.statements().size()==0)
 		    	continue;
-		    ListRewrite listRewrite = rewriter.getListRewrite(methodDeclaration.getBody(), Block.STATEMENTS_PROPERTY);
+		    ListRewrite listRewrite = rewriter.getListRewrite(block, Block.STATEMENTS_PROPERTY);
+			if(block.statements().get(0).toString().substring(0, 4).equals("this") || block.statements().get(0).toString().substring(0, 5).equals("throw"))
+				continue;
+			//if constructor, insert last and continue
+			if(methodDeclaration.isConstructor())
+			{
+				listRewrite.insertLast(printstatement, null);
+				continue;
+			}
+		    
 //		    methodDeclaration.getBody().statements().add(ast.newExpressionStatement(methodInvocation));   // do not work
-		    listRewrite.insertFirst(printstatement, null);
+//		    listRewrite.insertFirst(printstatement, null);
+		    System.out.print(block.statements().get(1).toString());
+			listRewrite.insertAt(printstatement, 3, null);
 		}
 		TextEdit edits = rewriter.rewriteAST(document,null);
 		try {
